@@ -80,7 +80,7 @@ export SERVER_FQDN=$(hostname -f)
 
 #Download the CrowdStrike's script to download the different components of CrowdStrike CNAPP and make it executable
 curl -sSL -o /home/ubuntu/falcon-container-sensor-pull.sh "https://raw.githubusercontent.com/CrowdStrike/falcon-scripts/main/bash/containers/falcon-container-sensor-pull/falcon-container-sensor-pull.sh"
-chmod +x home/ubuntu/falcon-container-sensor-pull.sh
+chmod +x /home/ubuntu/falcon-container-sensor-pull.sh
 
 #Change the Group ID to immediately activate the use of Docker without sudo (otherwise exit or reboot would be required)
 newgrp docker
