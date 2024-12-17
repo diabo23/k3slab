@@ -1,3 +1,12 @@
+echo "
+██╗  ██╗ █████╗  ██████╗
+██║ ██╔╝██╔══██╗██╔════╝
+█████╔╝ ███████║██║     
+██╔═██╗ ██╔══██║██║     
+██║  ██╗██║  ██║╚██████╗
+╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝
+"
+
 export MY_SHRA_REPO
 export DOCKER_USERNAME
 export DOCKER_PASSWORD
@@ -14,14 +23,10 @@ if [ $# -eq 2 ]
                 read -s -p "Docker Password: " DOCKER_PASSWORD
 fi
 
-echo "
-██╗  ██╗ █████╗  ██████╗
-██║ ██╔╝██╔══██╗██╔════╝
-█████╔╝ ███████║██║     
-██╔═██╗ ██╔══██║██║     
-██║  ██╗██║  ██║╚██████╗
-╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝
-"
+#The script needs 3 parameters given to it (these are needed for the SHRA deployement)
+# - The parameters could be given to it in an interactive way; this happens if you run the script with no parameters and you'll have to provide it one by one.
+# - As an alternative, you can run the parameters giving the first two parameters (Personal Repository and Docker Username); in this case the script will just ask you for the Docker Password
+#Given the sensitivity of the Docker Password, while you enter it or while you paste it, the text won't appear in the terminal; once provided, just press Enter to pass it to the script.
 
 export FALCON_IMAGE_TYPE=falcon-kac
 
@@ -250,7 +255,7 @@ executor:
   image:
     registry: "$MY_SHRA_REPO"
     repository: "falcon-registryassessmentexecutor"
-    tag: "1.0.0"
+    tag: "$FALCON_SHRA_EX_VERSION"
     registryConfigJSON: "$ENCODED_LOGIN"
   dbStorage:
     create: true
@@ -270,7 +275,7 @@ jobController:
   image:
     registry: "$MY_SHRA_REPO"
     repository: "falcon-jobcontroller"
-    tag: "1.0.0"
+    tag: "$FALCON_SHRA_JC_VERSION"
     registryConfigJSON: "$ENCODED_LOGIN"
   dbStorage:
     create: true
