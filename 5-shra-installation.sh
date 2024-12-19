@@ -16,7 +16,6 @@ export MY_SHRA_REPO
 export DOCKER_USERNAME
 export DOCKER_PASSWORD
 
-
 if [ $# -eq 2 ]
         then
                 MY_SHRA_REPO=$1
@@ -28,16 +27,20 @@ if [ $# -eq 2 ]
                 read -s -p "Docker Password: " DOCKER_PASSWORD
 fi
 
-
+#Create the namespace where the Falcon SHRA resources will be put
 kubectl create namespace falcon-self-hosted-registry-assessment
 
-
+#Get the encoded Docker login information that we'll use to pull images from this repository
 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 export ENCODED_LOGIN=$(cat ~/.docker/config.json | base64 -w0)
 
 
-export FALCON_IMAGE_TYPE=falcon-jobcontroller
+################################################################
+# JOB CONTROLLER - COPY IMAGE IN THE PERSONAL PRIVATE REGISTRY #
+################################################################
 
+#Get the latest available version of the Job Controller (one of the PODs of Falcon SHRA)
+export FALCON_IMAGE_TYPE=falcon-jobcontroller
 
 export FALCON_SHRA_JC_VERSION=$(./falcon-container-sensor-pull.sh \
   -u $FALCON_CLIENT_ID \
@@ -46,8 +49,7 @@ export FALCON_SHRA_JC_VERSION=$(./falcon-container-sensor-pull.sh \
   -t $FALCON_IMAGE_TYPE \
   | jq -r '.tags | last')
 
-
-#Copy the SHRA Job Controller image to Docker Hub via the pull sensor script
+#Copy the Job Controller image to our private Docker Hub registry
 ./falcon-container-sensor-pull.sh \
   --client-id ${FALCON_CLIENT_ID} \
   --client-secret ${FALCON_CLIENT_SECRET} \
@@ -55,9 +57,12 @@ export FALCON_SHRA_JC_VERSION=$(./falcon-container-sensor-pull.sh \
   --type $FALCON_IMAGE_TYPE \
   --version ${FALCON_SHRA_JC_VERSION}
 
+##########################################################
+# EXECUTOR - COPY IMAGE IN THE PERSONAL PRIVATE REGISTRY #
+##########################################################
 
+#Get the latest available version of the Executor (one of the PODs of Falcon SHRA)
 export FALCON_IMAGE_TYPE=falcon-registryassessmentexecutor
-
 
 export FALCON_SHRA_EX_VERSION=$(./falcon-container-sensor-pull.sh \
   -u $FALCON_CLIENT_ID \
@@ -66,8 +71,7 @@ export FALCON_SHRA_EX_VERSION=$(./falcon-container-sensor-pull.sh \
   -t $FALCON_IMAGE_TYPE \
   | jq -r '.tags | last')
 
-
-#Copy the SHRA Executor image to Docker Hub  via the pull sensor script
+#Copy the Executor image to our private Docker Hub registry
 ./falcon-container-sensor-pull.sh \
   --client-id ${FALCON_CLIENT_ID} \
   --client-secret ${FALCON_CLIENT_SECRET} \
@@ -75,12 +79,20 @@ export FALCON_SHRA_EX_VERSION=$(./falcon-container-sensor-pull.sh \
   --type falcon-registryassessmentexecutor \
   --version ${FALCON_SHRA_EX_VERSION}
 
+#########################################################
+# CREATION OF THE CONFIGURATION FILE FOR THE HELM CHART #
+#########################################################
 
+#CrowdStrike API Credentials
 cat > values_override.yaml <<EOF
 crowdstrikeConfig:
   clientID: "$FALCON_CLIENT_ID"
   clientSecret: "$FALCON_CLIENT_SECRET"
 
+EOF
+
+#Executor settings
+cat >> values_override.yaml <<EOF
 executor:
   image:
     registry: "$MY_SHRA_REPO"
@@ -101,6 +113,11 @@ executor:
       storageClass: "local-path"
       accessModes:
         - ReadWriteOnce
+
+EOF
+
+#Job Controller settings
+cat >> values_override.yaml <<EOF
 jobController:
   image:
     registry: "$MY_SHRA_REPO"
@@ -113,6 +130,11 @@ jobController:
     storageClass: "local-path"
     accessModes:
       - ReadWriteOnce
+
+EOF
+
+#Information related to the Registry to scan (type, credentials, involved repositories, schedule)
+cat >> values_override.yaml <<EOF
 registryConfigs:
   - type: dockerhub
     credentials:
@@ -120,9 +142,13 @@ registryConfigs:
       password: "$DOCKER_PASSWORD"
     allowedRepositories: ""
     host: "https://registry-1.docker.io"
-    cronSchedule: "45 22 * * *"
+    cronSchedule: "15 21 * * *"
+
 EOF
 
+#####################
+# SHRA Installation #
+#####################
 
 helm upgrade --install -f /home/$USER/values_override.yaml \
     --create-namespace \
@@ -130,7 +156,7 @@ helm upgrade --install -f /home/$USER/values_override.yaml \
     falcon-self-hosted-registry-assessment \
     crowdstrike/falcon-self-hosted-registry-assessment
 
-
+#Wait until the SHRA resources are up&running (timeout is set to 60 seconds)
 kubectl wait pod \
 --all \
 --for=condition=Ready \
