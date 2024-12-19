@@ -7,6 +7,7 @@ echo "
 ╚═╝╚═╝  ╚═╝ ╚═════╝    ╚═╝      ╚═════╝╚══════╝     ╚═════╝╚══════╝╚═╝       ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝
 "
 
+#Set the CrowdStrike API Hostname (this is based on the Cloud Region)
 if [ "$CROWDSTRIKE_CLOUD_ENV" == "us-1" ]
 then
   FALCON_API_HOST=api.crowdstrike.com
@@ -20,10 +21,7 @@ else
   read -p "CrowdStrike Falcon API Hostname: " FALCON_API_HOST
 fi
 
-#US-1: api.crowdstrike.com
-#US-2: api.us-2.crowdstrike.com
-#EU-1: api.eu-1.crowdstrike.com
-
+#Get the Token to perform request to the CrowdStrike API endpoints (the token expire 30 minutes after it's created)
 export FALCON_API_TOKEN_URL=https://$FALCON_API_HOST/oauth2/token
 
 export FALCON_API_TOKEN=$(curl -X POST --silent \
@@ -32,6 +30,7 @@ export FALCON_API_TOKEN=$(curl -X POST --silent \
     --data-urlencode "client_secret=${FALCON_CLIENT_SECRET}" \
     "$FALCON_API_TOKEN_URL" | jq -r '.access_token')
 
+#Get the FCS CLI Tool file name and version we want to download (in our case, the latest available version)
 export FALCON_FILE_ENUMERATION_URL=https://$FALCON_API_HOST/csdownloads/entities/files/enumerate/v1
 
 export IAC_FILE_NAME=$(curl -X GET --silent \
@@ -48,6 +47,7 @@ export IAC_FILE_VERSION=$(curl -X GET --silent \
   "${FALCON_FILE_ENUMERATION_URL}" \
   | jq -r 'last(.resources[] | select(.platform == "linux-amd64").version)')
 
+#Get a pre-signed URL to download the FCS CLI Tool file
 export FALCON_FILES_DOWNLOAD_URL=https://$FALCON_API_HOST/csdownloads/entities/files/download/v1
 
 export IAC_AUTH_URL=$(curl -X GET --silent -G \
@@ -58,10 +58,12 @@ export IAC_AUTH_URL=$(curl -X GET --silent -G \
   --data-urlencode "file_version=${IAC_FILE_VERSION}" \
   "${FALCON_FILES_DOWNLOAD_URL}" | jq -r '.resources.download_url')
 
+#Download the FCS CLI Tool file, unpack it and make it executable
 wget -O fcs-cli-tool.tar.gz $IAC_AUTH_URL
 tar -xvzf fcs-cli-tool.tar.gz
 chmod +x fcs
 
+#Create the FCS CLI Tool profile
 mkdir -p ~/.crowdstrike
 
 cat > ~/.crowdstrike/fcs_profiles.json <<EOF
