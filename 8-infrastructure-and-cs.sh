@@ -191,6 +191,39 @@ curl -sSL -o falcon-container-sensor-pull.sh "https://raw.githubusercontent.com/
 chmod +x falcon-container-sensor-pull.sh
 
 echo "
+ ██████╗███████╗    ██╗   ██╗ █████╗ ██████╗ ██╗ █████╗ ██████╗ ██╗     ███████╗███████╗
+██╔════╝██╔════╝    ██║   ██║██╔══██╗██╔══██╗██║██╔══██╗██╔══██╗██║     ██╔════╝██╔════╝
+██║     ███████╗    ██║   ██║███████║██████╔╝██║███████║██████╔╝██║     █████╗  ███████╗
+██║     ╚════██║    ╚██╗ ██╔╝██╔══██║██╔══██╗██║██╔══██║██╔══██╗██║     ██╔══╝  ╚════██║
+╚██████╗███████║     ╚████╔╝ ██║  ██║██║  ██║██║██║  ██║██████╔╝███████╗███████╗███████║
+ ╚═════╝╚══════╝      ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝╚══════╝
+"
+
+echo "************************************************************ Step c-01 ************************************************************"
+
+#Get the username we'll use to connect to CrowdStrike Registry
+export FALCON_ART_USERNAME=$(./falcon-container-sensor-pull.sh \
+  -u $FALCON_CLIENT_ID \
+  -s $FALCON_CLIENT_SECRET \
+  --dump-credentials \
+  | grep "CS Registry Username" | awk -F ": " '{print $2}')
+
+echo "************************************************************ Step c-02 ************************************************************"
+
+#Get the password we'll use to connect to CrowdStrike Registry
+export FALCON_ART_PASSWORD=$(./falcon-container-sensor-pull.sh \
+  -u $FALCON_CLIENT_ID \
+  -s $FALCON_CLIENT_SECRET \
+  --dump-credentials \
+  | grep "CS Registry Password" | awk -F ": " '{print $2}')
+
+echo "************************************************************ Step c-03 ************************************************************"
+
+#Get the Token we'll use to pull images from CrowdStrike Registry (this Token does not expire)
+export PARTIALPULLTOKEN=$(echo -n "$FALCON_ART_USERNAME:$FALCON_ART_PASSWORD" | base64 -w 0)
+export FALCON_IMAGE_PULL_TOKEN=$(echo "{\"auths\":{\"registry.crowdstrike.com\":{\"auth\":\"$PARTIALPULLTOKEN\"}}}" | base64 -w 0)
+
+echo "
 ██╗  ██╗ █████╗  ██████╗
 ██║ ██╔╝██╔══██╗██╔════╝
 █████╔╝ ███████║██║     
