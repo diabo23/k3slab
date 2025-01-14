@@ -17,6 +17,12 @@ then
 elif [ "$CROWDSTRIKE_CLOUD_ENV" == "eu-1" ]
 then
   FALCON_API_HOST=api.eu-1.crowdstrike.com
+elif [ "$CROWDSTRIKE_CLOUD_ENV" == "us-gov-1" ]
+then
+  FALCON_API_HOST=api.laggar.gcw.crowdstrike.com
+elif [ "$CROWDSTRIKE_CLOUD_ENV" == "us-gov-2" ]
+then
+  FALCON_API_HOST=api.us-gov-2.crowdstrike.mil
 else
   read -p "CrowdStrike Falcon API Hostname: " FALCON_API_HOST
 fi
