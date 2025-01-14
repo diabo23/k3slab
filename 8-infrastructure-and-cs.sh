@@ -174,7 +174,7 @@ export FALCON_IMAGE_TAG=$(./falcon-container-sensor-pull.sh \
 export FALCON_KAC_REPO=crowdstrike/falcon-kac
 
 #Set the name of the Kubernetes Cluster; if Falcon KAC can autodiscover the cluster name, it overrides any cluster name you manually set.
-export CLUSTER_NAME=se-agr-k3s
+export CLUSTER_NAME=ubuntu-box-cluster
 
 #Installation of the Falcon KAC
 helm upgrade --install falcon-kac $FALCON_KAC_REPO \
@@ -273,7 +273,7 @@ export FALCON_IMAGE_TAG=$(./falcon-container-sensor-pull.sh \
 export FALCON_IAR_REPO=crowdstrike/falcon-image-analyzer
 
 #Set the name of the Kubernetes Cluste
-export CLUSTER_NAME=se-agr-k3s
+export CLUSTER_NAME=ubuntu-box-cluster
 
 #Installation of the IAR
 helm upgrade --install image-analyzer $FALCON_IAR_REPO \
