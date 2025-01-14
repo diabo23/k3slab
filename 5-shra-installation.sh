@@ -9,22 +9,21 @@ echo "
 
 #The script needs 3 parameters given to it
 # - The parameters could be given to it in an interactive way; this happens if you run the script with no parameters and you'll have to provide it one by one.
-# - As an alternative, you can run the parameters giving the first two parameters (Personal Repository and Docker Username); in this case the script will just ask you for the Docker Password
-#Given the sensitivity of the Docker Password, while you enter it or while you paste it, the text won't appear in the terminal; once provided, just press Enter to pass it to the script.
+# - As an alternative, you can run the parameters giving the first two parameters (Personal Registry, Docker Username, Docker Password/Token).
 
-export MY_SHRA_REPO
+export MY_SHRA_REGISTRY
 export DOCKER_USERNAME
 export DOCKER_PASSWORD
 
-if [ $# -eq 2 ]
+if [ $# -eq 3 ]
         then
-                MY_SHRA_REPO=$1
+                MY_SHRA_REGISTRY=$1
                 DOCKER_USERNAME=$2
-                read -s -p "Docker Password: " DOCKER_PASSWORD
+                DOCKER_PASSWORD=$3
         else
-                read -p "Private Registry Repo (to put CS Images): " MY_SHRA_REPO
+                read -p "Private Registry (to put CS Images): " MY_SHRA_REGISTRY
                 read -p "Docker Username: " DOCKER_USERNAME
-                read -s -p "Docker Password: " DOCKER_PASSWORD
+                read -p "Docker Password: " DOCKER_PASSWORD
 fi
 
 #Create the namespace where the Falcon SHRA resources will be put
@@ -53,7 +52,7 @@ export FALCON_SHRA_JC_VERSION=$(./falcon-container-sensor-pull.sh \
 ./falcon-container-sensor-pull.sh \
   --client-id ${FALCON_CLIENT_ID} \
   --client-secret ${FALCON_CLIENT_SECRET} \
-  --copy ${MY_SHRA_REPO} \
+  --copy ${MY_SHRA_REGISTRY} \
   --type $FALCON_IMAGE_TYPE \
   --version ${FALCON_SHRA_JC_VERSION}
 
@@ -75,7 +74,7 @@ export FALCON_SHRA_EX_VERSION=$(./falcon-container-sensor-pull.sh \
 ./falcon-container-sensor-pull.sh \
   --client-id ${FALCON_CLIENT_ID} \
   --client-secret ${FALCON_CLIENT_SECRET} \
-  --copy ${MY_SHRA_REPO} \
+  --copy ${MY_SHRA_REGISTRY} \
   --type falcon-registryassessmentexecutor \
   --version ${FALCON_SHRA_EX_VERSION}
 
@@ -95,7 +94,7 @@ EOF
 cat >> values_override.yaml <<EOF
 executor:
   image:
-    registry: "$MY_SHRA_REPO"
+    registry: "$MY_SHRA_REGISTRY"
     repository: "falcon-registryassessmentexecutor"
     tag: "$FALCON_SHRA_EX_VERSION"
     registryConfigJSON: "$ENCODED_LOGIN"
@@ -120,7 +119,7 @@ EOF
 cat >> values_override.yaml <<EOF
 jobController:
   image:
-    registry: "$MY_SHRA_REPO"
+    registry: "$MY_SHRA_REGISTRY"
     repository: "falcon-jobcontroller"
     tag: "$FALCON_SHRA_JC_VERSION"
     registryConfigJSON: "$ENCODED_LOGIN"
