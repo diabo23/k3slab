@@ -1,3 +1,8 @@
+#!/bin/bash
+exec 3>&1 4>&2
+trap 'exec 2>&4 1>&3' 0 1 2 3
+exec 1>log.out 2>&1
+
 #The script needs 7 parameters
 # - The parameters could be given in an interactive way; this happens if you run the script with no parameters and you'll have to provide it one by one.
 # - As an alternative, you can run the parameters giving all the 7 parameters (CID with Checksum, CrowdStrike Cloud Region in lower case, API Client ID, API Client Secret, Personal Registry on DockerHub, Docker Username and Docker Password) separated by a blank space.
