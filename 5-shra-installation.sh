@@ -83,7 +83,7 @@ export FALCON_SHRA_EX_VERSION=$(./falcon-container-sensor-pull.sh \
 #########################################################
 
 #CrowdStrike API Credentials
-cat > values_override.yaml <<EOF
+cat > /home/$USER/values_override.yaml <<EOF
 crowdstrikeConfig:
   clientID: "$FALCON_CLIENT_ID"
   clientSecret: "$FALCON_CLIENT_SECRET"
@@ -91,7 +91,7 @@ crowdstrikeConfig:
 EOF
 
 #Executor settings
-cat >> values_override.yaml <<EOF
+cat >> /home/$USER/values_override.yaml <<EOF
 executor:
   image:
     registry: "$MY_SHRA_REGISTRY"
@@ -116,7 +116,7 @@ executor:
 EOF
 
 #Job Controller settings
-cat >> values_override.yaml <<EOF
+cat >> /home/$USER/values_override.yaml <<EOF
 jobController:
   image:
     registry: "$MY_SHRA_REGISTRY"
@@ -133,7 +133,7 @@ jobController:
 EOF
 
 #Information related to the Registry to scan (type, credentials, involved repositories, schedule)
-cat >> values_override.yaml <<EOF
+cat >> /home/$USER/values_override.yaml <<EOF
 registryConfigs:
   - type: dockerhub
     credentials:
@@ -141,7 +141,7 @@ registryConfigs:
       password: "$DOCKER_PASSWORD"
     allowedRepositories: ""
     host: "https://registry-1.docker.io"
-    cronSchedule: "15 21 * * *"
+    cronSchedule: "15 * * * *"
 
 EOF
 
