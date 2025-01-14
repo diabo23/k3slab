@@ -21,7 +21,7 @@ if [ $# -eq 4 ]
                 FALCON_CID=$1
                 CROWDSTRIKE_CLOUD_ENV=$2
                 FALCON_CLIENT_ID=$3
-                FALCON_CLIENT_SECRE=$4
+                FALCON_CLIENT_SECRET=$4
         else
                 read -p "CrowdStrike CID: " FALCON_CID
                 read -p "CrowdStrike Cloud Region: " CROWDSTRIKE_CLOUD_ENV
