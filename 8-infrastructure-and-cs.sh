@@ -1,35 +1,33 @@
-#The script needs 7 parameters given to it
-# - The parameters could be given to it in an interactive way; this happens if you run the script with no parameters and you'll have to provide it one by one.
-# - As an alternative, you can run the parameters giving the first five parameters (CID, CrowdStrike Cloud Region, API Client ID, Personal Repository and Docker Username) separated by a blank space; in this case the script will just ask you for the API Client Secret and Docker Password
-#Given the sensitivity of the API Client Secret, while you enter it or while you paste it, the text won't appear in the terminal; once provided, just press Enter to pass it to the script.
+#The script needs 7 parameters
+# - The parameters could be given in an interactive way; this happens if you run the script with no parameters and you'll have to provide it one by one.
+# - As an alternative, you can run the parameters giving all the 7 parameters (CID with Checksum, CrowdStrike Cloud Region in lower case, API Client ID, API Client Secret, Personal Registry on DockerHub, Docker Username and Docker Password) separated by a blank space.
 
 export FALCON_CID
 export CROWDSTRIKE_CLOUD_ENV
 export FALCON_CLIENT_ID
 export FALCON_CLIENT_SECRET
-export MY_SHRA_REPO
+export MY_SHRA_REGISTRY
 export DOCKER_USERNAME
 export DOCKER_PASSWORD
 
-if [ $# -eq 5 ]
+if [ $# -eq 7 ]
         then
                 FALCON_CID=$1
                 CROWDSTRIKE_CLOUD_ENV=$2
                 FALCON_CLIENT_ID=$3
-                MY_SHRA_REPO=$4
-                DOCKER_USERNAME=$5
-                read -s -p "CrowdStrike API Client Secret: " FALCON_CLIENT_SECRET
-                read -s -p "CrowdStrike Docker Password: " DOCKER_PASSWORD
+				FALCON_CLIENT_SECRET=$4
+                MY_SHRA_REGISTRY=$5
+                DOCKER_USERNAME=$6
+                DOCKER_PASSWORD=$7
         else
-                read -p "CrowdStrike CID: " FALCON_CID
-                read -p "CrowdStrike Cloud Region: " CROWDSTRIKE_CLOUD_ENV
+                read -p "CrowdStrike CID with Checksum: " FALCON_CID
+                read -p "CrowdStrike Cloud Region (lower case): " CROWDSTRIKE_CLOUD_ENV
                 read -p "CrowdStrike API Client Key: " FALCON_CLIENT_ID
-                read -s -p "CrowdStrike API Client Secret: " FALCON_CLIENT_SECRET
-                read -p "Private Registry Repo (to put CS Images): " MY_SHRA_REPO
+                read -p "CrowdStrike API Client Secret: " FALCON_CLIENT_SECRET
+                read -p "Private Registry on DockerHub (to put CS Images): " MY_SHRA_REGISTRY
                 read -p "Docker Username: " DOCKER_USERNAME
-                read -s -p "Docker Password: " DOCKER_PASSWORD
+                read -p "Docker Password: " DOCKER_PASSWORD
 fi
-
 
 echo "
 ██╗  ██╗██████╗ ███████╗    ██╗      █████╗ ██████╗     ██████╗ ██████╗ ███████╗██████╗  █████╗ ██████╗  █████╗ ████████╗██╗ ██████╗ ███╗   ██╗
@@ -145,44 +143,6 @@ export SERVER_FQDN=$(hostname -f)
 curl -sSL -o falcon-container-sensor-pull.sh "https://raw.githubusercontent.com/CrowdStrike/falcon-scripts/main/bash/containers/falcon-container-sensor-pull/falcon-container-sensor-pull.sh"
 chmod +x falcon-container-sensor-pull.sh
 
-
-echo "
- ██████╗███████╗    ██╗   ██╗ █████╗ ██████╗ ██╗ █████╗ ██████╗ ██╗     ███████╗███████╗
-██╔════╝██╔════╝    ██║   ██║██╔══██╗██╔══██╗██║██╔══██╗██╔══██╗██║     ██╔════╝██╔════╝
-██║     ███████╗    ██║   ██║███████║██████╔╝██║███████║██████╔╝██║     █████╗  ███████╗
-██║     ╚════██║    ╚██╗ ██╔╝██╔══██║██╔══██╗██║██╔══██║██╔══██╗██║     ██╔══╝  ╚════██║
-╚██████╗███████║     ╚████╔╝ ██║  ██║██║  ██║██║██║  ██║██████╔╝███████╗███████╗███████║
- ╚═════╝╚══════╝      ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝╚══════╝
-"
-
-#Get the username we'll use to connect to CrowdStrike Registry
-export FALCON_ART_USERNAME=$(./falcon-container-sensor-pull.sh \
-  -u $FALCON_CLIENT_ID \
-  -s $FALCON_CLIENT_SECRET \
-  --dump-credentials \
-  | grep "CS Registry Username" | awk -F ": " '{print $2}')
-
-#Get the password we'll use to connect to CrowdStrike Registry
-export FALCON_ART_PASSWORD=$(./falcon-container-sensor-pull.sh \
-  -u $FALCON_CLIENT_ID \
-  -s $FALCON_CLIENT_SECRET \
-  --dump-credentials \
-  | grep "CS Registry Password" | awk -F ": " '{print $2}')
-
-#Get the Token we'll use to pull images from CrowdStrike Registry (this Token does not expire)
-export PARTIALPULLTOKEN=$(echo -n "$FALCON_ART_USERNAME:$FALCON_ART_PASSWORD" | base64 -w 0)
-export FALCON_IMAGE_PULL_TOKEN=$(echo "{\"auths\":{\"registry.crowdstrike.com\":{\"auth\":\"$PARTIALPULLTOKEN\"}}}" | base64 -w 0)
-
-
-echo "
- █████╗ ██╗     ██╗          ██████╗███████╗     ██████╗███╗   ██╗ █████╗ ██████╗ ██████╗ 
-██╔══██╗██║     ██║         ██╔════╝██╔════╝    ██╔════╝████╗  ██║██╔══██╗██╔══██╗██╔══██╗
-███████║██║     ██║         ██║     ███████╗    ██║     ██╔██╗ ██║███████║██████╔╝██████╔╝
-██╔══██║██║     ██║         ██║     ╚════██║    ██║     ██║╚██╗██║██╔══██║██╔═══╝ ██╔═══╝ 
-██║  ██║███████╗███████╗    ╚██████╗███████║    ╚██████╗██║ ╚████║██║  ██║██║     ██║     
-╚═╝  ╚═╝╚══════╝╚══════╝     ╚═════╝╚══════╝     ╚═════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝     ╚═╝     
-"
-
 echo "
 ██╗  ██╗ █████╗  ██████╗
 ██║ ██╔╝██╔══██╗██╔════╝
@@ -231,7 +191,6 @@ kubectl wait pod \
 --for=condition=Ready \
 --namespace=falcon-kac \
 --timeout=60s
-
 
 echo "
 ███████╗███████╗███╗   ██╗███████╗ ██████╗ ██████╗ 
@@ -282,7 +241,6 @@ kubectl wait pod \
 --for=condition=Ready \
 --namespace=falcon-system \
 --timeout=60s
-
 
 echo "
 ██╗ █████╗ ██████╗ 
@@ -337,7 +295,6 @@ kubectl wait pod \
 --namespace=falcon-image-analyzer \
 --timeout=60s
 
-
 echo "
 ███████╗██╗  ██╗██████╗  █████╗ 
 ██╔════╝██║  ██║██╔══██╗██╔══██╗
@@ -346,26 +303,6 @@ echo "
 ███████║██║  ██║██║  ██║██║  ██║
 ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
 "
-
-#The script needs 3 parameters given to it
-# - The parameters could be given to it in an interactive way; this happens if you run the script with no parameters and you'll have to provide it one by one.
-# - As an alternative, you can run the parameters giving the first two parameters (Personal Repository and Docker Username); in this case the script will just ask you for the Docker Password
-#Given the sensitivity of the Docker Password, while you enter it or while you paste it, the text won't appear in the terminal; once provided, just press Enter to pass it to the script.
-
-export MY_SHRA_REPO
-export DOCKER_USERNAME
-export DOCKER_PASSWORD
-
-if [ $# -eq 2 ]
-        then
-                MY_SHRA_REPO=$1
-                DOCKER_USERNAME=$2
-                read -s -p "Docker Password: " DOCKER_PASSWORD
-        else
-                read -p "Private Registry Repo (to put CS Images): " MY_SHRA_REPO
-                read -p "Docker Username: " DOCKER_USERNAME
-                read -s -p "Docker Password: " DOCKER_PASSWORD
-fi
 
 #Create the namespace where the Falcon SHRA resources will be put
 kubectl create namespace falcon-self-hosted-registry-assessment
@@ -393,7 +330,7 @@ export FALCON_SHRA_JC_VERSION=$(./falcon-container-sensor-pull.sh \
 ./falcon-container-sensor-pull.sh \
   --client-id ${FALCON_CLIENT_ID} \
   --client-secret ${FALCON_CLIENT_SECRET} \
-  --copy ${MY_SHRA_REPO} \
+  --copy ${MY_SHRA_REGISTRY} \
   --type $FALCON_IMAGE_TYPE \
   --version ${FALCON_SHRA_JC_VERSION}
 
@@ -415,7 +352,7 @@ export FALCON_SHRA_EX_VERSION=$(./falcon-container-sensor-pull.sh \
 ./falcon-container-sensor-pull.sh \
   --client-id ${FALCON_CLIENT_ID} \
   --client-secret ${FALCON_CLIENT_SECRET} \
-  --copy ${MY_SHRA_REPO} \
+  --copy ${MY_SHRA_REGISTRY} \
   --type falcon-registryassessmentexecutor \
   --version ${FALCON_SHRA_EX_VERSION}
 
@@ -424,7 +361,7 @@ export FALCON_SHRA_EX_VERSION=$(./falcon-container-sensor-pull.sh \
 #########################################################
 
 #CrowdStrike API Credentials
-cat > values_override.yaml <<EOF
+cat > /home/$USER/values_override.yaml <<EOF
 crowdstrikeConfig:
   clientID: "$FALCON_CLIENT_ID"
   clientSecret: "$FALCON_CLIENT_SECRET"
@@ -432,10 +369,10 @@ crowdstrikeConfig:
 EOF
 
 #Executor settings
-cat >> values_override.yaml <<EOF
+cat >> /home/$USER/values_override.yaml <<EOF
 executor:
   image:
-    registry: "$MY_SHRA_REPO"
+    registry: "$MY_SHRA_REGISTRY"
     repository: "falcon-registryassessmentexecutor"
     tag: "$FALCON_SHRA_EX_VERSION"
     registryConfigJSON: "$ENCODED_LOGIN"
@@ -457,10 +394,10 @@ executor:
 EOF
 
 #Job Controller settings
-cat >> values_override.yaml <<EOF
+cat >> /home/$USER/values_override.yaml <<EOF
 jobController:
   image:
-    registry: "$MY_SHRA_REPO"
+    registry: "$MY_SHRA_REGISTRY"
     repository: "falcon-jobcontroller"
     tag: "$FALCON_SHRA_JC_VERSION"
     registryConfigJSON: "$ENCODED_LOGIN"
@@ -474,7 +411,7 @@ jobController:
 EOF
 
 #Information related to the Registry to scan (type, credentials, involved repositories, schedule)
-cat >> values_override.yaml <<EOF
+cat >> /home/$USER/values_override.yaml <<EOF
 registryConfigs:
   - type: dockerhub
     credentials:
@@ -482,7 +419,7 @@ registryConfigs:
       password: "$DOCKER_PASSWORD"
     allowedRepositories: ""
     host: "https://registry-1.docker.io"
-    cronSchedule: "15 21 * * *"
+    cronSchedule: "15 * * * *"
 
 EOF
 
@@ -503,7 +440,6 @@ kubectl wait pod \
 --namespace=falcon-self-hosted-registry-assessment \
 --timeout=60s
 
-
 echo "
 ██╗ █████╗  ██████╗    ███████╗ ██████╗███████╗     ██████╗██╗     ██╗    ████████╗ ██████╗  ██████╗ ██╗     
 ██║██╔══██╗██╔════╝    ██╔════╝██╔════╝██╔════╝    ██╔════╝██║     ██║    ╚══██╔══╝██╔═══██╗██╔═══██╗██║     
@@ -523,6 +459,12 @@ then
 elif [ "$CROWDSTRIKE_CLOUD_ENV" == "eu-1" ]
 then
   FALCON_API_HOST=api.eu-1.crowdstrike.com
+elif [ "$CROWDSTRIKE_CLOUD_ENV" == "us-gov-1" ]
+then
+  FALCON_API_HOST=api.laggar.gcw.crowdstrike.com
+elif [ "$CROWDSTRIKE_CLOUD_ENV" == "us-gov-2" ]
+then
+  FALCON_API_HOST=api.us-gov-2.crowdstrike.mil
 else
   read -p "CrowdStrike Falcon API Hostname: " FALCON_API_HOST
 fi
@@ -581,5 +523,3 @@ cat > ~/.crowdstrike/fcs_profiles.json <<EOF
    }
 }
 EOF
-
-echo ""
