@@ -38,6 +38,8 @@ echo "
 ╚═╝  ╚═╝╚═════╝ ╚══════╝    ╚══════╝╚═╝  ╚═╝╚═════╝     ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 "
 
+echo "************************************************************ Step b-01 ************************************************************"
+
 #Prevent Kernel update
 export LINUX_IMAGE=$(dpkg --list | grep linux-image | head -1 | awk '{ print $2 }')
 export LINUX_HEADERS=$(dpkg --list | grep linux-headers | head -1 | awk '{ print $2 }')
@@ -47,17 +49,25 @@ sudo apt-mark hold $LINUX_IMAGE $LINUX_HEADERS linux-image-aws linux-headers-aws
 # DOCKER INSTALLATION #
 #######################
 
+echo "************************************************************ Step b-02 ************************************************************"
+
 #Uninstall all Docker conflicting packages
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg -y; done
 
+echo "************************************************************ Step b-03 ************************************************************"
+
 #Fetches the latest version of the package list
 sudo apt-get update
+
+echo "************************************************************ Step b-04 ************************************************************"
 
 # Add Docker's official GPG key:
 sudo apt-get install -y ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+echo "************************************************************ Step b-05 ************************************************************"
 
 # Add the repository to Apt sources:
 echo \
@@ -66,8 +76,12 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 
+echo "************************************************************ Step b-06 ************************************************************"
+
 #Install the Docker packages
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+echo "************************************************************ Step b-07 ************************************************************"
 
 #Allow the use of Docker without sudo (exit or newgrp docker or reboot are required to activate the change)
 sudo usermod -aG docker ${USER}
@@ -76,12 +90,16 @@ sudo usermod -aG docker ${USER}
 # HELM INSTALLATION #
 #####################
 
+echo "************************************************************ Step b-08 ************************************************************"
+
 sudo apt-get install -y snapd
 sudo snap install helm --classic
 
 ################################################
 # ADD CROWDSTRIKE FALCON HELM CHART REPOSITORY #
 ################################################
+
+echo "************************************************************ Step b-09 ************************************************************"
 
 helm repo add crowdstrike https://crowdstrike.github.io/falcon-helm
 helm repo update
@@ -91,11 +109,15 @@ helm repo list
 # JQ INSTALLATION #
 ###################
 
+echo "************************************************************ Step b-10 ************************************************************"
+
 sudo apt-get install -y jq
 
 #####################
 # TREE INSTALLATION #
 #####################
+
+echo "************************************************************ Step b-11 ************************************************************"
 
 sudo apt-get install tree
 
@@ -103,22 +125,34 @@ sudo apt-get install tree
 # K3S INSTALLATION #
 ####################
 
+echo "************************************************************ Step b-12 ************************************************************"
+
 #K3S Deployment
 curl -sfL https://get.k3s.io | sh -
+
+echo "************************************************************ Step b-13 ************************************************************"
 
 #Allow the use of kubectl without sudo
 export KUBECONFIG=~/.kube/config
 mkdir ~/.kube 2> /dev/null
 sudo k3s kubectl config view --raw > "$KUBECONFIG"
 
+echo "************************************************************ Step b-14 ************************************************************"
+
 #Make the change persistent at reboot
 echo export KUBECONFIG="/home/$USER/.kube/config" >> ~/.bash_profile
+
+echo "************************************************************ Step b-15 ************************************************************"
 
 #Enable kubectl autocompletion
 echo 'source <(kubectl completion bash)' >> ~/.bash_profile
 
+echo "************************************************************ Step b-16 ************************************************************"
+
 #Apply the changes
 source ~/.bash_profile
+
+echo "************************************************************ Step b-17 ************************************************************"
 
 #Avoid a warning from Helm related to configuration file permissions
 chmod 600 ~/.kube/config
@@ -127,11 +161,17 @@ chmod 600 ~/.kube/config
 # SET HOSTNAME AND FQDN #
 #########################
 
+echo "************************************************************ Step b-18 ************************************************************"
+
 #Set the hostname
 sudo hostnamectl set-hostname ubuntu-box
 
+echo "************************************************************ Step b-19 ************************************************************"
+
 #Set the FQDN
 sudo bash -c 'echo "127.0.0.1 ubuntu-box.k3s.lab ubuntu-box" >>/etc/hosts'
+
+echo "************************************************************ Step b-20 ************************************************************"
 
 #Set the SERVER_FQDN variable
 export SERVER_FQDN=$(hostname -f)
@@ -139,6 +179,8 @@ export SERVER_FQDN=$(hostname -f)
 ##############################################################
 # DOWNLOAD CROWDSTRIKE SCRIPT TO LIST AND DOWNLOAD RESOURCES #
 ##############################################################
+
+echo "************************************************************ Step b-21 ************************************************************"
 
 curl -sSL -o falcon-container-sensor-pull.sh "https://raw.githubusercontent.com/CrowdStrike/falcon-scripts/main/bash/containers/falcon-container-sensor-pull/falcon-container-sensor-pull.sh"
 chmod +x falcon-container-sensor-pull.sh
