@@ -7,6 +7,19 @@ echo "
 ╚═╝  ╚═╝╚═════╝ ╚══════╝    ╚══════╝╚═╝  ╚═╝╚═════╝     ╚═╝     ╚═╝  ╚═╝╚══════╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝
 "
 
+#########################
+# SET HOSTNAME AND FQDN #
+#########################
+
+#Set the hostname
+sudo hostnamectl set-hostname ubuntu-box
+
+#Set the FQDN
+sudo bash -c 'echo "127.0.0.1 ubuntu-box.k3s.lab ubuntu-box" >>/etc/hosts'
+
+#Set the SERVER_FQDN variable
+export SERVER_FQDN=$(hostname -f)
+
 #Prevent Kernel update
 export LINUX_IMAGE=$(dpkg --list | grep linux-image | head -1 | awk '{ print $2 }')
 export LINUX_HEADERS=$(dpkg --list | grep linux-headers | head -1 | awk '{ print $2 }')
@@ -91,19 +104,6 @@ source ~/.bash_profile
 
 #Avoid a warning from Helm related to configuration file permissions
 chmod 600 ~/.kube/config
-
-#########################
-# SET HOSTNAME AND FQDN #
-#########################
-
-#Set the hostname
-sudo hostnamectl set-hostname ubuntu-box
-
-#Set the FQDN
-sudo bash -c 'echo "127.0.0.1 ubuntu-box.k3s.lab ubuntu-box" >>/etc/hosts'
-
-#Set the SERVER_FQDN variable
-export SERVER_FQDN=$(hostname -f)
 
 ##############################################################
 # DOWNLOAD CROWDSTRIKE SCRIPT TO LIST AND DOWNLOAD RESOURCES #
