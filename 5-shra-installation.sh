@@ -155,9 +155,9 @@ helm upgrade --install -f /home/$USER/values_override.yaml \
     falcon-self-hosted-registry-assessment \
     crowdstrike/falcon-self-hosted-registry-assessment
 
-#Wait until the SHRA resources are up&running (timeout is set to 60 seconds)
-kubectl wait pod \
---all \
---for=condition=Ready \
---namespace=falcon-self-hosted-registry-assessment \
---timeout=60s
+#Wait until the SHRA resources are up&running, timeout is set to 60 seconds; uncomment the following section if you want to apply the check.
+#kubectl wait pod \
+#--all \
+#--for=condition=Ready \
+#--namespace=falcon-self-hosted-registry-assessment \
+#--timeout=60s
