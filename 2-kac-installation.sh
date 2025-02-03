@@ -40,9 +40,9 @@ helm upgrade --install falcon-kac $FALCON_KAC_REPO \
   --set image.registryConfigJSON=$FALCON_IMAGE_PULL_TOKEN \
   --set clusterName=$CLUSTER_NAME
 
-#Wait until the Falcon KAC resources are up&running (timeout is set to 60 seconds)
-kubectl wait pod \
---all \
---for=condition=Ready \
---namespace=falcon-kac \
---timeout=60s
+#Wait until the Falcon KAC resources are up&running timeout is set to 60 seconds; uncomment the following section if you want to apply it.
+#kubectl wait pod \
+#--all \
+#--for=condition=Ready \
+#--namespace=falcon-kac \
+#--timeout=60s
