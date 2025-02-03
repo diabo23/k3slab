@@ -7,6 +7,10 @@ echo "
 ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
 "
 
+#The script uses the same Docker Hub registry both for copying CrowdStrike images related to the SHRA and for performing the images assessment.
+#In case you want to use two Docker Hub registers, one for copying CrowdStrike images and one for image assessment, simply adapt the script to your needs.
+#Similarly, the script can be adapted to use registries other than Docker Hub.
+
 #The script needs 3 parameters given to it
 # - The parameters could be given to it in an interactive way; this happens if you run the script with no parameters and you'll have to provide it one by one.
 # - As an alternative, you can run the parameters giving the first two parameters (Personal Registry, Docker Username, Docker Password/Token).
@@ -133,6 +137,7 @@ jobController:
 EOF
 
 #Information related to the Registry to scan (type, credentials, involved repositories, schedule)
+#In the example, the scheduling will perform an analysis every hour, 15 minutes after the hour (e.g. at 10:15, 11:15, 12:15, etc.)
 cat >> /home/$USER/values_override.yaml <<EOF
 registryConfigs:
   - type: dockerhub
