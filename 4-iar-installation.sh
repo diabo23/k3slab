@@ -29,7 +29,7 @@ export FALCON_IMAGE_TAG=$(./falcon-container-sensor-pull.sh \
 export FALCON_IAR_REPO=crowdstrike/falcon-image-analyzer
 
 #Set the name of the Kubernetes Cluste
-export CLUSTER_NAME=se-agr-k3s
+export CLUSTER_NAME=se-k3s-cluster
 
 #Installation of the IAR
 helm upgrade --install image-analyzer $FALCON_IAR_REPO \
@@ -44,9 +44,9 @@ helm upgrade --install image-analyzer $FALCON_IAR_REPO \
   --set image.repository="$FALCON_IMAGE_REPO" \
   --set image.tag="$FALCON_IMAGE_TAG"
 
-#Wait until the IAR resources are up&running (timeout is set to 60 seconds)
-kubectl wait pod \
---all \
---for=condition=Ready \
---namespace=falcon-image-analyzer \
---timeout=60s
+#Wait until the IAR resources are up&running, timeout is set to 60 seconds; uncomment the following section if you want to apply the check.
+#kubectl wait pod \
+#--all \
+#--for=condition=Ready \
+#--namespace=falcon-image-analyzer \
+#--timeout=60s
