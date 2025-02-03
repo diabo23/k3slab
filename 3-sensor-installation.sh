@@ -41,9 +41,9 @@ helm upgrade --install falcon-sensor $FALCON_SENSOR_REPO \
   --set node.image.tag=$FALCON_IMAGE_TAG \
   --set node.image.registryConfigJSON=$FALCON_IMAGE_PULL_TOKEN
 
-#Wait until the Falcon Sensor resources are up&running (timeout is set to 60 seconds)
-kubectl wait pod \
---all \
---for=condition=Ready \
---namespace=falcon-system \
---timeout=60s
+#Wait until the Falcon Sensor resources are up&running, timeout is set to 60 seconds; uncomment the following section if you want to apply the check.
+#kubectl wait pod \
+#--all \
+#--for=condition=Ready \
+#--namespace=falcon-system \
+#--timeout=60s
