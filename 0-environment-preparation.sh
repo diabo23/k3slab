@@ -176,8 +176,4 @@ echo "*** Change the group ID to allow the use of Docker without SUDO (otherwise
 # CHANGE THE GROUP ID TO ALLOW USE OF DOCKER WITHOUT SUDO (otherwise "exit" is needed) #
 ########################################################################################
 
-newgrp docker
-
-#######
-# END #
-#######
+echo "Issue the command 'newgrp docker' or exit and restart the session (then test with 'docker images')"
