@@ -27,7 +27,7 @@ echo $PR_REPOSITORY
 echo $PUB_IMAGE
 echo $PR_TAG
 
-#docker pull $PUB_IMAGE
-#docker tag $PUB_IMAGE $PR_REGISTRY/$PR_REPOSITORY:$PR_TAG
-#docker login -u $PR_REGISTRY -p $PR_PASSWORD
-#docker push $PR_REGISTRY/$PR_REPOSITORY:$PR_TAG
+docker pull $PUB_IMAGE
+docker tag $PUB_IMAGE $PR_REGISTRY/$PR_REPOSITORY:$PR_TAG
+docker login -u $PR_REGISTRY -p $PR_PASSWORD
+docker push $PR_REGISTRY/$PR_REPOSITORY:$PR_TAG
