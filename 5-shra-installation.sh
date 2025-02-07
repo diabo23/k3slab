@@ -27,7 +27,7 @@ if [ $# -eq 3 ]
         else
                 read -p "Private Registry (to put CS Images): " MY_SHRA_REGISTRY
                 read -p "Docker Username: " DOCKER_USERNAME
-                read -p "Docker Password: " DOCKER_PASSWORD
+                read -p "Docker Token: " DOCKER_PASSWORD
 fi
 
 #Create the namespace where the Falcon SHRA resources will be put
