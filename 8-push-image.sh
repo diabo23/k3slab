@@ -11,15 +11,21 @@ else
   read -p "Docker Hub Token: " PR_PASSWORD
   read -p "Target Repository in the Private Registry: " PR_REPOSITORY
   
-  cat > variables-private-reg.txt <<EOF
-  export PR_REGISTRY=$PR_REGISTRY
-  export PR_PASSWORD=$PR_PASSWORD
-  export PR_REPOSITORY=$PR_REPOSITORY
-  EOF
+cat > variables-private-reg.txt <<EOF
+export PR_REGISTRY=$PR_REGISTRY
+export PR_PASSWORD=$PR_PASSWORD
+export PR_REPOSITORY=$PR_REPOSITORY
+EOF
 fi
 
 read -p "Tag of the Public Image to Pull: " PUB_IMAGE
 read -p "Tag to assign to the Image: " PR_TAG
+
+echo $PR_REGISTRY
+echo $PR_PASSWORD
+echo $PR_REPOSITORY
+echo $PUB_IMAGE
+echo $PR_TAG
 
 #docker pull $PUB_IMAGE
 #docker tag $PUB_IMAGE $PR_REGISTRY/$PR_REPOSITORY:$PR_TAG
