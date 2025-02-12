@@ -25,10 +25,10 @@ export FALCON_IMAGE_TAG=$(./falcon-container-sensor-pull.sh \
   -t $FALCON_IMAGE_TYPE \
   | jq -r '.tags | last')
 
-#Set the repositoruy of the Helm client
+#Set the repository of the Helm client
 export FALCON_KAC_REPO=crowdstrike/falcon-kac
 
-#Set the name of the Kubernetes Cluster; if Falcon KAC can autodiscover the cluster name, it overrides any cluster name you manually set.
+#Set the name of the Kubernetes Cluster; if Falcon KAC can autodiscover the cluster name, it overrides any cluster name you manually set
 export CLUSTER_NAME=se-k3s-cluster
 
 #Installation of the Falcon KAC
@@ -40,7 +40,7 @@ helm upgrade --install falcon-kac $FALCON_KAC_REPO \
   --set image.registryConfigJSON=$FALCON_IMAGE_PULL_TOKEN \
   --set clusterName=$CLUSTER_NAME
 
-#Wait until the Falcon KAC resources are up&running, timeout is set to 60 seconds; uncomment the following section if you want to apply the check.
+#Wait until the Falcon KAC resources are up&running, timeout is set to 60 seconds; uncomment the following section if you want to apply the check
 #kubectl wait pod \
 #--all \
 #--for=condition=Ready \
